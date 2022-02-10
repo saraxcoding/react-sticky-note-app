@@ -106,31 +106,7 @@ class App extends Component {
         <NotesList
           notes={this.state.notes}
           onType={this.onType}
-          removeNote={this.removeNote}    /* saves notes data to local storage after each render */
-    const savedNotesString = JSON.stringify(this.state.notes);
-    localStorage.setItem("savedNotes", savedNotesString);
-  }
-
-  render() {
-    return (
-      <div>
-        <Header
-          searchText={this.state.searchText}
-          addNote={this.addNote}
-          onSearch={this.onSearch}
-        />
-        <NotesList
-          notes={this.state.notes}
-          onType={this.onType}
           removeNote={this.removeNote}
-        />
-      </div>
-    );
-  }
-}
-
-export default App;
-
         />
       </div>
     );
