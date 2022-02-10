@@ -14,6 +14,7 @@ class App extends Component {
     ],
     searchText: ""
   };
+  
   addNote = () => {
     const newNote = {
       id: Date.now(),
@@ -24,12 +25,13 @@ class App extends Component {
     const newNotes = [newNote, ...this.state.notes];
     this.setState({ notes: newNotes });
   };
+  
   onType = (editMeId, updatedKey, updatedValue) => {
     /* this event handler updates sticky note text fields
       - editMeId: the id of the note storing user input
       - updatedKey: between 'title' vs 'description', which field was edited?
       - updatedValue: new value of edited field */
-    const updateIdMatch = (note) => {
+    const updatedNotes = this.state.notes.map((note) => {
       if (note.id !== editMeId) {
         return note;
       } else {
@@ -41,45 +43,54 @@ class App extends Component {
           return note;
         }
       }
-    };
-    const updatedNotes = this.state.notes.map(updateIdMatch);
+    });
+    //const updatedNotes = this.state.notes.map(updateIdMatch);
     this.setState({ notes: updatedNotes });
   };
-  onSearch = (e) => {
-    const searchText = e.target.value.toLowerCase();
+  
+  onSearch = (text) => {
+    /* toggle the doesMatchSearch boolean value of sticky note when user types in search field. 
+    doesMatchSearch value set to true if its title or description matches the search string */
+    const newSearchText = text.toLowerCase();
     const updatedNotes = this.state.notes.map((note) => {
-      if (!searchText) {
+      if (!newSearchText) {
         note.doesMatchSearch = true;
         return note;
       } else {
         const title = note.title.toLowerCase();
         const description = note.description.toLowerCase();
-        const titleMatch = title.includes(searchText);
-        const descriptionMatch = description.includes(searchText);
+        const titleMatch = title.includes(newSearchText);
+        const descriptionMatch = description.includes(newSearchText);
         const hasMatch = titleMatch || descriptionMatch;
-        note.doesMatch = hasMatch;
+        note.doesMatchSearch = hasMatch;
         return note;
       }
     });
     this.setState({
-      searchText: searchText,
+      searchText: newSearchText,
       notes: updatedNotes
     });
   };
-  remove = (deleteMeId) => {
+  
+  removeNote = (deleteMeId) => {
     /* remove note by id of note user clicked on */
     const notIdMatch = (note) => note.id !== deleteMeId;
     const updatedNotes = this.state.notes.filter(notIdMatch);
     this.setState({ notes: updatedNotes });
   };
-  componentDidMount() {
+  
+  componentDidMount() { 
+    /* after first time rendering, read saved notes data from local storage 
+    and pass that data to compontent state if it exists */
     const savedNotesString = localStorage.getItem("savedNotes");
     if (savedNotesString) {
       const savedNotes = JSON.parse(savedNotesString);
       this.setState({ notes: savedNotes });
     }
   }
+  
   componentDidUpdate() {
+    /* saves notes data to local storage after each render */
     const savedNotesString = JSON.stringify(this.state.notes);
     localStorage.setItem("savedNotes", savedNotesString);
   }
@@ -89,13 +100,37 @@ class App extends Component {
       <div>
         <Header
           searchText={this.state.searchText}
-          addNote={this.addNotes}
+          addNote={this.addNote}
           onSearch={this.onSearch}
         />
         <NotesList
           notes={this.state.notes}
           onType={this.onType}
-          remove={this.remove}
+          removeNote={this.removeNote}    /* saves notes data to local storage after each render */
+    const savedNotesString = JSON.stringify(this.state.notes);
+    localStorage.setItem("savedNotes", savedNotesString);
+  }
+
+  render() {
+    return (
+      <div>
+        <Header
+          searchText={this.state.searchText}
+          addNote={this.addNote}
+          onSearch={this.onSearch}
+        />
+        <NotesList
+          notes={this.state.notes}
+          onType={this.onType}
+          removeNote={this.removeNote}
+        />
+      </div>
+    );
+  }
+}
+
+export default App;
+
         />
       </div>
     );
